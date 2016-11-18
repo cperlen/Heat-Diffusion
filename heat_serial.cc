@@ -105,5 +105,5 @@ for(int i = 0; i < nx; i++){
 }
 
 delete [] T_n;
-delete[] T_n1;
+delete [] T_n1;
 }
