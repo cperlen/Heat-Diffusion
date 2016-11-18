@@ -72,14 +72,7 @@ for(int t=0; t < num_steps; t++){
     T_n1[nx-1][j] = T_n[nx-1][j] + kappa * dt/sq(dx) * (T_n[nx-2][j]+T_n[0][j]+T_n[nx-1][j-1]+T_n[nx-1][j+1]-4*T_n[nx-1][j]);
     T_n1[0][j] = T_n1[nx-1][j];
   }
-/*
-    T_n1[0][i] = T_n[0][i] + kappa * dt / sq(dx) * (T_n[nx-1][i]+T_n[1][i]+T_n[0][i-1]+T_n[0][i+1]-4*T_n[0][i]);
-  }
 
-  for(int i=1; i < nx-1; i++){
-    T_n1[nx-1][i] = T_n[nx-1][i] + kappa * dt/sq(dx) * (T_n[nx-2][i]+T_n[0][i]+T_n[nx-1][i-1]+T_n[nx-1][i+1]-4*T_n[nx-1][i]);
-  }
-*/
   for(int i=0; i < nx; i++){
     for(int j=0; j < nx; j++){ 
       T_n[i][j] = T_n1[i][j];
@@ -101,7 +94,7 @@ cout<<"Average temperature is "<<tot/(sq(nx))<<endl;
 
 //print output
 char filename[50];
-sprintf(filename,"map_serial_%d.txt",nx);
+sprintf(filename,"heatmap_serial_%d.txt",nx);
 ofstream fout(filename);
 
 for(int i = 0; i < nx; i++){
