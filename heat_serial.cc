@@ -74,6 +74,7 @@ while(t < num_steps){
 }
 
 //print output
+double tot = 0.0;
 char filename[50];
 sprintf(filename,"heatmap_serial_%d.txt",nx);
 ofstream fout(filename);
@@ -81,18 +82,11 @@ ofstream fout(filename);
 for(int i = 0; i < nx; i++){
   for(int j = 0; j < nx; j++){ 
     fout<< i<<" "<<j<<" "<< T_n[i][j]<<endl;
+    tot += T_n[i][j]; //average
   }
   fout<<endl;
 }
 fout.close();
-
-//compute average
-double tot = 0.0;
-for(int i=0; i < nx; i++){
-  for(int j=0; j < nx; j++){ 
-    tot += T_n[i][j];
-  }
-}
 
 elapsed_t = clock()/float(CLOCKS_PER_SEC) - elapsed_t;
 cout<<"Total time elapsed "<< elapsed_t <<endl;
