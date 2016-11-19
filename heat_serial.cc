@@ -29,75 +29,75 @@ int main(int argc, char *argv[]){
 //initialize T^n
   double** T_n = new double*[nx];
   for (int i=0; i < nx; i++){
-   T_n[i] = new double[nx];
-   for(int j=0; j < nx; j++){ 
-    T_n[i][j] = 0;
-  }
- } 
+    T_n[i] = new double[nx];
+    for(int j=0; j < nx; j++){ 
+      T_n[i][j] = 0;
+    }
+  } 
 
 //boundary conditions 
-for (int i=0; i < nx; i++){
-  T_n[i][0] = sq(cos(i * M_PI/double(nx)));  //T(x,0) = cos^2(x)
-  T_n[i][nx-1] = sq(sin(i * M_PI/double(nx))); //T(x,\pi) = sin^2(x)
-}
+  for (int i=0; i < nx; i++){
+    T_n[i][0] = sq(cos(i * M_PI/double(nx)));  //T(x,0) = cos^2(x)
+    T_n[i][nx-1] = sq(sin(i * M_PI/double(nx))); //T(x,\pi) = sin^2(x)
+  }
 
 //initialize T^n+1
- double** T_n1 = new double*[nx];
- for (int i=0; i < nx; i++){
+  double** T_n1 = new double*[nx];
+  for (int i=0; i < nx; i++){
     T_n1[i] = new double[nx];
     for(int j=0; j < nx; j++){ 
       T_n1[i][j] = T_n[i][j];
+    }
   }
- }
 
 //finite difference simulation
-int t = 0;
-while(t < num_steps){
-  for(int i=1; i < nx-1; i++){
-    for(int j=1; j < nx-1; j++){ 
-      T_n1[i][j] = T_n[i][j] + kappa * dt/sq(dx) * (T_n[i-1][j]+T_n[i+1][j]+T_n[i][j-1]+T_n[i][j+1]-4*T_n[i][j]);
+  int t = 0;
+  while(t < num_steps){
+    for(int i=1; i < nx-1; i++){
+      for(int j=1; j < nx-1; j++){ 
+        T_n1[i][j] = T_n[i][j] + kappa * dt/sq(dx) * (T_n[i-1][j]+T_n[i+1][j]+T_n[i][j-1]+T_n[i][j+1]-4*T_n[i][j]);
+      }
     }
-  }
 
   //periodicity
-  for(int j=1; j < nx-1; j++){
-    T_n1[nx-1][j] = T_n[nx-1][j] + kappa * dt/sq(dx) * (T_n[nx-2][j]+T_n[0][j]+T_n[nx-1][j-1]+T_n[nx-1][j+1]-4*T_n[nx-1][j]);
-    T_n1[0][j] = T_n1[nx-1][j];
-  }
-
-  for(int i=0; i < nx; i++){
-    for(int j=0; j < nx; j++){ 
-      T_n[i][j] = T_n1[i][j];
+    for(int j=1; j < nx-1; j++){
+      T_n1[nx-1][j] = T_n[nx-1][j] + kappa * dt/sq(dx) * (T_n[nx-2][j]+T_n[0][j]+T_n[nx-1][j-1]+T_n[nx-1][j+1]-4*T_n[nx-1][j]);
+      T_n1[0][j] = T_n1[nx-1][j];
     }
+
+    for(int i=0; i < nx; i++){
+      for(int j=0; j < nx; j++){ 
+        T_n[i][j] = T_n1[i][j];
+      }
+    }
+    t += 1;
   }
-  t += 1;
-}
 
 //print output
-double tot = 0.0;
-char filename[50];
-sprintf(filename,"heatmap_serial_%d.txt",nx);
-ofstream fout(filename);
+  double tot = 0.0;
+  char filename[50];
+  sprintf(filename,"heatmap_serial_%d.txt",nx);
+  ofstream fout(filename);
 
-for(int i = 0; i < nx; i++){
-  for(int j = 0; j < nx; j++){ 
-    fout<< i<<" "<<j<<" "<< T_n[i][j]<<endl;
-    tot += T_n[i][j]; //average
+  for(int i = 0; i < nx; i++){
+    for(int j = 0; j < nx; j++){ 
+      fout<< i<<" "<<j<<" "<< T_n[i][j]<<endl;
+      tot += T_n[i][j]; //average
+    }
+    fout<<endl;
   }
-  fout<<endl;
-}
-fout.close();
+  fout.close();
 
-elapsed_t = clock()/float(CLOCKS_PER_SEC) - elapsed_t;
-cout<<"Total time elapsed "<< elapsed_t <<endl;
-cout<<"Average temperature is "<<tot/(sq(nx))<<endl;
+  elapsed_t = clock()/float(CLOCKS_PER_SEC) - elapsed_t;
+  cout<<"Total time elapsed "<< elapsed_t <<endl;
+  cout<<"Average temperature is "<<tot/(sq(nx))<<endl;
 
-//free memory
-for(int i = 0; i < nx; i++){
-  delete [] T_n[i];
-  delete [] T_n1[i];
-}
+  //free memory
+  for(int i = 0; i < nx; i++){
+    delete [] T_n[i];
+    delete [] T_n1[i];
+  }
 
-delete [] T_n;
-delete [] T_n1;
+  delete [] T_n;
+  delete [] T_n1;
 }
