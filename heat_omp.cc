@@ -4,6 +4,7 @@
 #include <fstream>
 #include <math.h>
 #include <time.h>
+#include <omp.h>
 using namespace std;
 
 inline double sq(double x){
@@ -53,32 +54,40 @@ int main(int argc, char *argv[]){
 //finite difference simulation
   int t = 0;
   while(t < num_steps){
+    #pragma omp parallel for num_threads(nthreads) 
     for(int i=1; i < nx-1; i++){
+            //       cout<<"Thread number"<<omp_get_thread_num()<<endl;
       for(int j=1; j < nx-1; j++){ 
-        T_n1[i][j] = T_n[i][j] + kappa * dt/sq(dx) * (T_n[i-1][j]+T_n[i+1][j]+T_n[i][j-1]+T_n[i][j+1]-4*T_n[i][j]);
+        grid_n[ii][j]=grid[ii][j]+ kappa*dt*(grid[ii-1][j]+grid[ii+1][j]+grid[ii][j-1]+grid[ii][j+1]-4*grid[ii][j])/sq(dx);
       }
     }
-
-  //periodicity
-    for(int j=1; j < nx-1; j++){
+    
+    #pragma omp parallel for num_threads(nthreads)
+    for(int i=1;i<nx-1; i++){
+      T_n1[i][j] = T_n[i][j] + kappa * dt/sq(dx) * (T_n[i-1][j]+T_n[i+1][j]+T_n[i][j-1]+T_n[i][j+1]-4*T_n[i][j]);
+    }
+    //periodicity
+    #pragma omp parallel for num_threads(nthreads)
+    for(int i=1; i < nx-1; i++){
       T_n1[nx-1][j] = T_n[nx-1][j] + kappa * dt/sq(dx) * (T_n[nx-2][j]+T_n[0][j]+T_n[nx-1][j-1]+T_n[nx-1][j+1]-4*T_n[nx-1][j]);
       T_n1[0][j] = T_n1[nx-1][j];
     }
 
+    #pragma omp parallel for num_threads(nthreads)
     for(int i=0; i < nx; i++){
       for(int j=0; j < nx; j++){ 
-        T_n[i][j] = T_n1[i][j];
-      }
-    }
-    t += 1;
-  }
+       T_n[i][j]=T_n1[i][j];
+     }
+   }
+   t += 1
+ }
 
   elapsed_t = clock()/float(CLOCKS_PER_SEC) - elapsed_t;
 
 //print output
   double tot = 0.0;
   char filename[50];
-  sprintf(filename,"heatmap_serial_%d.txt",nx);
+  sprintf(filename,"heatmap_omp_%d.txt",nx);
   ofstream fout(filename);
 
   for(int i = 0; i < nx; i++){
@@ -102,3 +111,5 @@ int main(int argc, char *argv[]){
   delete [] T_n;
   delete [] T_n1;
 }
+
+
